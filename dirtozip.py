@@ -28,7 +28,7 @@ def createZip():
         printWarning(arg_warning_2)
         printWarning(arg_warning_3)
 
-    with ZipFile(output_path + '\\' + zip_file_name, 'w') as zipObj:
+    with ZipFile(output_path + '/' + zip_file_name, 'w') as zipObj:
         for folderName, subfolders, filenames in os.walk(path):
             for filename in filenames:
                 if filename == script_name or filename == script_name.split('.')[0] + '.bat' or filename == zip_file_name:
