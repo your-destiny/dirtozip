@@ -16,26 +16,38 @@ def createZip():
                     "taken as the path "
     odp_warning_3 = "The directory for the output file was not found, the directory with the script will be taken as " \
                     "the path "
-    if not checkIfExistArgv(array_argv, 'ofn'):
+
+    if checkIfExistArgv(array_argv, 'ofn', '-'):
+        zip_file_name = getArgvValue(array_argv, 'ofn', '-') + '.zip'
+    elif checkIfExistArgv(array_argv, 'output_filename', '--'):
+        zip_file_name = getArgvValue(array_argv, 'output_filename', '--') + '.zip'
+    else:
         printWarning(ofn_warning_1)
-    else:
-        zip_file_name = getArgvValue(array_argv, 'ofn') + '.zip'
 
-    if not checkIfExistArgv(array_argv, 'idp'):
+    if checkIfExistArgv(array_argv, 'idp', '-'):
+        path = str(getArgvValue(array_argv, 'idp', '-'))
+    elif checkIfExistArgv(array_argv, 'input_dir_path', '--'):
+        path = str(getArgvValue(array_argv, 'input_dir_path', '--'))
+    else:
         printWarning(idp_warning_2)
-    else:
-        path = str(getArgvValue(array_argv, 'idp'))
 
-    if not checkIfExistArgv(array_argv, 'odp'):
+    if checkIfExistArgv(array_argv, 'odp', '-'):
+        output_path = str(getArgvValue(array_argv, 'odp', '-'))
+    elif checkIfExistArgv(array_argv, 'output_dir_path', '--'):
+        output_path = str(getArgvValue(array_argv, 'output_dir_path', '--'))
+    else:
         printWarning(odp_warning_3)
-    else:
-        output_path = str(getArgvValue(array_argv, 'odp'))
 
-    if checkIfExistArgv(array_argv, 'sfs'):
-        if getArgvValue(array_argv, 'sfs') != '' and getArgvValue(array_argv, 'sfs').find(';') != -1:
-            skip = getArgvValue(array_argv, 'sfs').split(';')
+    if checkIfExistArgv(array_argv, 'sfs', '-'):
+        if getArgvValue(array_argv, 'sfs', '-') != '' and getArgvValue(array_argv, 'sfs', '-').find(';') != -1:
+            skip = getArgvValue(array_argv, 'sfs', '-').split(';')
+    elif checkIfExistArgv(array_argv, 'skip_files_subdir', '--'):
+        if getArgvValue(array_argv, 'skip_files_subdir', '--') != '' \
+                and getArgvValue(array_argv, 'skip_files_subdir', '--').find(';') != -1:
+            skip = getArgvValue(array_argv, 'skip_files_subdir', '--').split(';')
 
-    if checkIfExistArgvWithoutValue(array_argv, 'sofs'):
+    if checkIfExistArgvWithoutValue(array_argv, 'sofs', '-') \
+            or checkIfExistArgvWithoutValue(array_argv, 'skip_output_file_script', '--'):
         skip_script_name_and_zip_file_name = True
 
     if os.path.exists(path):
@@ -62,18 +74,20 @@ def printWarning(warning):
     print(warning)
 
 
-def getArgvValue(array_argv, elem):
+def getArgvValue(array_argv, elem, flag_separator):
     return list(map(lambda x: x[1],
-                    [inner_arg for inner_arg in list(map(lambda x: x.split('--')[1].split('='), array_argv)) if
-                     len(inner_arg) > 1]))[list(map(lambda x: x.split('=')[0],[arg for arg in list(map(lambda x: x.split('--')[1], array_argv)) if arg.find('=') != -1])).index(elem)]
+                    [inner_arg for inner_arg in list(map(lambda x: x.split(flag_separator)[1].split('='), array_argv))
+                     if
+                     len(inner_arg) > 1]))[list(map(lambda x: x.split('=')[0], [arg for arg in list(
+        map(lambda x: x.split(flag_separator)[1], array_argv)) if arg.find('=') != -1])).index(elem)]
 
 
-def checkIfExistArgv(array_argv, elem):
-    return elem in list(map(lambda x: x.split('--')[1].split('=')[0], array_argv))
+def checkIfExistArgv(array_argv, elem, flag_separator):
+    return elem in list(map(lambda x: x.split(flag_separator)[1].split('=')[0], array_argv))
 
 
-def checkIfExistArgvWithoutValue(array_argv, elem):
-    return elem in [arg for arg in list(map(lambda x: x.split('--')[1], array_argv)) if arg.find('=') == -1]
+def checkIfExistArgvWithoutValue(array_argv, elem, flag_separator):
+    return elem in [arg for arg in list(map(lambda x: x.split(flag_separator)[1], array_argv)) if arg.find('=') == -1]
 
 
 if __name__ == "__main__":
